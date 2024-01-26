@@ -14,11 +14,14 @@ class Volunteer extends Model
         'moo',
         'tambon',
         'amphoe',
-        'created_at',
-        'updated_at',
     ];
 
     protected $hidden = [
         'remember_token',
     ];
+
+    public function assessment()
+    {
+        return $this->hasMany(Assessment::class, 'volunteer_id', 'user_id');
+    }
 }

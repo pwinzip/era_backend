@@ -18,16 +18,16 @@ return new class extends Migration
             $table->unsignedBigInteger('volunteer_id');
             $table->foreign('volunteer_id')->references('user_id')->on('volunteers');
             $table->tinyInteger('month');
-            $table->tinyInteger('year');
-            $table->boolean('ass_personal');
-            $table->boolean('ass_part1');
-            $table->boolean('ass_part2');
-            $table->boolean('ass_part3');
-            $table->boolean('ass_part4');
-            $table->boolean('ass_part5');
-            $table->boolean('ass_part6');
-            $table->boolean('ass_part7');
-            $table->boolean('ass_part8');
+            $table->integer('year');
+            $table->boolean('ass_personal')->default(false);
+            $table->boolean('ass_part1')->default(false);
+            $table->boolean('ass_part2')->default(false);
+            $table->boolean('ass_part3')->default(false);
+            $table->boolean('ass_part4')->default(false);
+            $table->boolean('ass_part5')->default(false);
+            $table->boolean('ass_part6')->default(false);
+            $table->boolean('ass_part7')->default(false);
+            $table->boolean('ass_part8')->default(false);
             $table->timestamps();
         });
     }

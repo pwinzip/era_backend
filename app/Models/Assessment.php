@@ -26,11 +26,5 @@ class Assessment extends Model
         'ass_part6',
         'ass_part7',
         'ass_part8',
-        'created_at',
-        'updated_at',
-    ];
-
-    protected $hidden = [
-        'remember_token',
     ];
 }

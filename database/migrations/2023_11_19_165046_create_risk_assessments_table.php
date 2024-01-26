@@ -12,7 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('risk_assessments', function (Blueprint $table) {
-            $table->id();
+            $table->id('risk_ass_id');
+            $table->unsignedBigInteger('ass_id');
+            $table->foreign('ass_id')->references('ass_id')->on('assessments');
+            $table->tinyInteger('part');
+            $table->string('subpart');
+            $table->tinyInteger('touch');
+            $table->tinyInteger('violent');
+            $table->string('manage');
+            $table->string('note')->nullable();
             $table->timestamps();
         });
     }

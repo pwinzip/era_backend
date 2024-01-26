@@ -22,4 +22,9 @@ class Elder extends Model
     protected $hidden = [
         'remember_token',
     ];
+
+    public function assessment()
+    {
+        return $this->hasMany(Elder::class, 'elder_id', 'user_id');
+    }
 }

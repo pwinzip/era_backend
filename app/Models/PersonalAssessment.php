@@ -22,11 +22,7 @@ class PersonalAssessment extends Model
         'children',
         'year_working',
         'period_working',
-        'created_at',
-        'updated_at',
     ];
 
-    protected $hidden = [
-        'remember_token',
-    ];
+    protected $casts = ['career' => 'array'];
 }

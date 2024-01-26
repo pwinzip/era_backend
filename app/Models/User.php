@@ -17,13 +17,11 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-        protected $fillable = [
+    protected $fillable = [
         'name',
         'username',
         'password',
         'user_type', // 0 = admin, 1 = volunteer, 2 = elder
-        'created_at',
-        'updated_at',
     ];
 
     /**
@@ -46,11 +44,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function volunteer() {
+    public function volunteer()
+    {
         return $this->hasOne(Volunteer::class, 'user_id', 'id');
     }
 
-    public function elder() {
+    public function elder()
+    {
         return $this->hasOne(Elder::class, 'user_id', 'id');
     }
 }

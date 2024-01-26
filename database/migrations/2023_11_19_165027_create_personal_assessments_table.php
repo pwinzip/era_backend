@@ -12,18 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('personal_assessments', function (Blueprint $table) {
-            $table->unsignedBigInteger('ass_id');
+            $table->unsignedBigInteger('ass_id')->primary();
             $table->foreign('ass_id')->references('ass_id')->on('assessments');
             $table->tinyInteger('age');
-            $table->tinyInteger('weight');
-            $table->tinyInteger('height');
-            $table->tinyInteger('career');
-            $table->string('income');
-            $table->string('high_education');
-            $table->string('marital_status');
+            $table->double('weight');
+            $table->double('height');
+            $table->text('career'); // follow survey form
+            $table->double('income');
+            $table->tinyInteger('high_education'); // follow survey form
+            $table->tinyInteger('marital_status'); // follow survey form
             $table->tinyInteger('house_member')->default(1);
             $table->tinyInteger('children')->default(0);
-            $table->tinyInteger('year_working')->default(1);
+            $table->integer('year_working')->default(1);
             $table->tinyInteger('period_working')->default(8);
             $table->timestamps();
         });
