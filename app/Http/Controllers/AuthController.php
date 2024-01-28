@@ -11,8 +11,9 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function registerAdmin(Request $request) {
-        if($request->user()->tokenCan("0")){
+    public function registerAdmin(Request $request)
+    {
+        if ($request->user()->tokenCan("0")) {
             $fields = $request->validate([
                 'prefix' => 'required|string',
                 'name' => 'required|string',
@@ -29,15 +30,16 @@ class AuthController extends Controller
             ]);
             return response([
                 "message" => "New Admin Added.",
-            ], 200);
+            ], 201);
         } else {
             return response([
                 "message" => "Permission Denied.",
             ], 403);
         }
     }
-    public function registerVolunteer(Request $request) {
-        if($request->user()->tokenCan("0")){
+    public function registerVolunteer(Request $request)
+    {
+        if ($request->user()->tokenCan("0")) {
             $fields = $request->validate([
                 'prefix' => 'required|string',
                 'name' => 'required|string',
@@ -65,7 +67,7 @@ class AuthController extends Controller
             ]);
             return response([
                 "message" => "New Volunteer Added.",
-            ], 200);
+            ], 201);
         } else {
             return response([
                 "message" => "Permission Denied.",
@@ -73,18 +75,21 @@ class AuthController extends Controller
         }
     }
 
-    public function registerElder(Request $request) {
-        if($request->user()->tokenCan("0")){
-            if($request->user()->tokenCan("0")){
+    public function registerElder(Request $request)
+    {
+        if ($request->user()->tokenCan("0")) {
+            if ($request->user()->tokenCan("0")) {
                 $fields = $request->validate([
                     'prefix' => 'required|string',
                     'name' => 'required|string',
                     'username' => 'required|string|unique:users,username',
                     'password' => 'required|string',
                     'address' => 'required|string',
+                    'house_no' => 'required|string',
                     'moo' => 'required|integer',
                     'tambon'  => 'required|string',
                     'amphoe' => 'required|string',
+                    'voluteer' => 'required|integer',
                 ]);
                 $user = User::create([
                     "username" => $fields['username'],
@@ -100,12 +105,13 @@ class AuthController extends Controller
                     "moo" => $fields['moo'],
                     "tambon" => $fields['tambon'],
                     "amphoe" => $fields['amphoe'],
+                    "volunteer_id" => $fields['voluteer'],
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
                 ]);
                 return response([
                     "message" => "New Elder Added.",
-                ], 200);
+                ], 201);
             } else {
                 return response([
                     "message" => "Permission Denied.",
@@ -115,7 +121,8 @@ class AuthController extends Controller
     }
 
 
-    public function login(Request $request) {
+    public function login(Request $request)
+    {
         $fields = $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
@@ -124,24 +131,27 @@ class AuthController extends Controller
         $user = User::where('username', $fields['username'])->first();
 
         // return response($request, 200);
-        if(!$user || !Hash::check($fields["password"], $user->password)){
+        if (!$user || !Hash::check($fields["password"], $user->password)) {
             return response([
                 "message" => "Invalid Login."
             ], 401);
-        }
-        else {
+        } else {
             $user->tokens()->delete();
             $token = $user->createToken($request->userAgent(), ["$user->user_type"])->plainTextToken;
 
             $id = $user->id;
             $type = $user->user_type;
             $uu = null;
-            if($type == 1) {
+            if ($type == 1) {
                 $uu = User::find($id)->volunteer;
+                // Return go to volunteer page
             } else if ($type == 2) {
                 $uu = User::find($id)->elder;
+                // Return go to elder page
+            } else {
+                // Return go to admin page
             }
-            
+
             $response = [
                 "user" => $user,
                 "token" => $token,
@@ -150,14 +160,13 @@ class AuthController extends Controller
 
             return response($response, 200);
         }
-
     }
 
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         $request->user()->currentAccessToken()->delete();
         return response([
             "message" => "Logged Out"
         ], 200);
-
     }
 }

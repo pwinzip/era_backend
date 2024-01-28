@@ -15,8 +15,7 @@ class Elder extends Model
         'moo',
         'tambon',
         'amphoe',
-        'created_at',
-        'updated_at',
+        'volunteer_id',
     ];
 
     protected $hidden = [

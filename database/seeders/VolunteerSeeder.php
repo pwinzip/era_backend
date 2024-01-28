@@ -21,6 +21,14 @@ class VolunteerSeeder extends Seeder
                 'amphoe' => "ป่าพะยอม",
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
+            ],
+            [
+                'user_id' => 3,
+                'moo' => 2,
+                'tambon' => "ลานข่อย",
+                'amphoe' => "ป่าพะยอม",
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ]
         ]);
     }

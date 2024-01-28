@@ -18,6 +18,8 @@ return new class extends Migration
             $table->tinyInteger('moo');
             $table->string('tambon');
             $table->string('amphoe');
+            $table->unsignedBigInteger('volunteer_id');
+            $table->foreign('volunteer_id')->references('user_id')->on('volunteers');
             $table->timestamps();
         });
     }

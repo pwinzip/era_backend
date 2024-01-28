@@ -15,14 +15,35 @@ class ElderSeeder extends Seeder
     {
         DB::table('elders')->insert([
             [
-                'user_id' => 3,
+                'user_id' => 4,
                 'house_no' => '999/99',
+                'moo' => 1,
+                'tambon' => "บ้านพร้าว",
+                'amphoe' => "ป่าพะยอม",
+                'volunteer_id' => 2,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'user_id' => 5,
+                'house_no' => '111/11',
+                'moo' => 2,
+                'tambon' => "ลานข่อย",
+                'amphoe' => "ป่าพะยอม",
+                'volunteer_id' => 3,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'user_id' => 6,
+                'house_no' => '222/22',
                 'moo' => 2,
                 'tambon' => "บ้านพร้าว",
                 'amphoe' => "ป่าพะยอม",
+                'volunteer_id' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
-            ]
+            ],
         ]);
     }
 }

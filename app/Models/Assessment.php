@@ -26,5 +26,6 @@ class Assessment extends Model
         'ass_part6',
         'ass_part7',
         'ass_part8',
+        'status',
     ];
 }

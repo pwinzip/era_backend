@@ -28,6 +28,7 @@ return new class extends Migration
             $table->boolean('ass_part6')->default(false);
             $table->boolean('ass_part7')->default(false);
             $table->boolean('ass_part8')->default(false);
+            $table->tinyInteger('status')->default(0); // 0 not submit, 1 submit 
             $table->timestamps();
         });
     }

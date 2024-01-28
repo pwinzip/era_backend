@@ -16,7 +16,23 @@ class AssessmentSeeder extends Seeder
     {
         DB::table('assessments')->insert([
             [
-                'elder_id' => 3,
+                'elder_id' => 4,
+                'volunteer_id' => 2,
+                'month' => 1,
+                'year' => 2567,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'elder_id' => 5,
+                'volunteer_id' => 3,
+                'month' => 1,
+                'year' => 2567,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'elder_id' => 6,
                 'volunteer_id' => 2,
                 'month' => 1,
                 'year' => 2567,

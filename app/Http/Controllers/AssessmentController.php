@@ -2,48 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Assessment;
 use Illuminate\Http\Request;
 
 class AssessmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    // Add New Assessment
+    public function addassessment(Request $request)
     {
-        //
-    }
+        $fields = $request->validate([
+            "elder" => 'required|integer',
+            "volunteer" => 'required|integer',
+            "month" => 'required|integer',
+            "year" => 'required|integer'
+        ]);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $assessment = Assessment::create([
+            "elder_id" => $fields['elder'],
+            "volunteer_id" => $fields['volunteer'],
+            "month" => $fields['month'],
+            "year" => $fields['year'],
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Assessment $assessment)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Assessment $assessment)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Assessment $assessment)
-    {
-        //
+        return response([
+            "message" => "New Assessment Added.",
+            "data" => $assessment,
+        ], 201);
     }
 }
