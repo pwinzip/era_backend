@@ -70,13 +70,13 @@ class ElderController extends Controller
             ->where('assessments.volunteer_id', '=', $volid)
             ->where('assessments.year', '=', $year)
             ->where('assessments.month', '=', $month)
-            ->select('users.prefix', 'users.name', 'elders.moo', 'elders.tambon', 'elders.amphoe', 'assessments.month', 'assessments.year', 'assessments.status')
+            ->select('assessments.elder_id', 'users.prefix', 'users.name', 'elders.moo', 'elders.tambon', 'elders.amphoe', 'assessments.month', 'assessments.year', 'assessments.status')
             ->orderBy('status')
             ->orderBy('assessments.elder_id')
             ->get();
 
         return response([
-            "message" => $elders,
+            "data" => $elders,
             'year' => $year,
             'month' => $month,
         ], 200);
