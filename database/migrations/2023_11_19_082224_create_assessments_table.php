@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('assessments', function (Blueprint $table) {
             $table->id('ass_id');
             $table->unsignedBigInteger('elder_id');
-            $table->foreign('elder_id')->references('user_id')->on('elders');
-            $table->unsignedBigInteger('volunteer_id');
-            $table->foreign('volunteer_id')->references('user_id')->on('volunteers');
+            $table->foreign('elder_id')->references('id')->on('elders');
+            $table->unsignedBigInteger('assessor_id');
+            $table->foreign('assessor_id')->references('id')->on('users');
             $table->tinyInteger('month');
             $table->integer('year');
             $table->boolean('ass_personal')->default(false);

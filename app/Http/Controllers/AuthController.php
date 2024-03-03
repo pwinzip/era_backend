@@ -21,8 +21,9 @@ class AuthController extends Controller
                 'password' => 'required|string',
             ]);
             $user = User::create([
-                "username" => $fields['username'],
+                "prefix" => $fields['prefix'],
                 "name" => $fields['name'],
+                "username" => $fields['username'],
                 "password" => Hash::make($fields['password']),
                 "user_type" => 0, // admin
                 'created_at' => Carbon::now(),
@@ -37,6 +38,7 @@ class AuthController extends Controller
             ], 403);
         }
     }
+
     public function registerVolunteer(Request $request)
     {
         if ($request->user()->tokenCan("0")) {
@@ -50,8 +52,9 @@ class AuthController extends Controller
                 'amphoe' => 'required|string',
             ]);
             $user = User::create([
-                "username" => $fields['username'],
+                'prefix' => $fields['prefix'],
                 "name" => $fields['name'],
+                "username" => $fields['username'],
                 "password" => Hash::make($fields['password']),
                 "user_type" => 1, // volunteer
                 'created_at' => Carbon::now(),
@@ -77,46 +80,47 @@ class AuthController extends Controller
 
     public function registerElder(Request $request)
     {
+
         if ($request->user()->tokenCan("0")) {
-            if ($request->user()->tokenCan("0")) {
-                $fields = $request->validate([
-                    'prefix' => 'required|string',
-                    'name' => 'required|string',
-                    'username' => 'required|string|unique:users,username',
-                    'password' => 'required|string',
-                    'address' => 'required|string',
-                    'house_no' => 'required|string',
-                    'moo' => 'required|integer',
-                    'tambon'  => 'required|string',
-                    'amphoe' => 'required|string',
-                    'voluteer' => 'required|integer',
-                ]);
-                $user = User::create([
-                    "username" => $fields['username'],
-                    "name" => $fields['name'],
-                    "password" => Hash::make($fields['password']),
-                    "user_type" => 2, // elder
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ]);
-                $elder = Elder::create([
-                    "user_id" => $user->id,
-                    "house_no" => $fields['house_no'],
-                    "moo" => $fields['moo'],
-                    "tambon" => $fields['tambon'],
-                    "amphoe" => $fields['amphoe'],
-                    "volunteer_id" => $fields['voluteer'],
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ]);
-                return response([
-                    "message" => "New Elder Added.",
-                ], 201);
-            } else {
-                return response([
-                    "message" => "Permission Denied.",
-                ], 403);
-            }
+            $fields = $request->validate([
+                'prefix' => 'required|string',
+                'name' => 'required|string',
+                'code_name' => 'required|string',
+                'house_no' => 'required|string',
+                'moo' => 'required|integer',
+                'tambon'  => 'required|string',
+                'amphoe' => 'required|string',
+            ]);
+            $elder = Elder::create([
+                "prefix" => $fields['prefix'],
+                "name" => $fields['name'],
+                "code_name" => $fields['code_name'],
+                "house_no" => $fields['house_no'],
+                "moo" => $fields['moo'],
+                "tambon" => $fields['tambon'],
+                "amphoe" => $fields['amphoe'],
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+            return response([
+                "message" => "New Elder Added.",
+            ], 201);
+        } else {
+            return response([
+                "message" => "Permission Denied.",
+            ], 403);
+        }
+    }
+
+    public function alladminlist(Request $request)
+    {
+        if ($request->user()->tokenCan("0")) {
+            $user = User::where('user_type', '=', 0)->get();
+            return response(['data' => $user], 200);
+        } else {
+            return response([
+                "message" => "Permission Denied.",
+            ], 403);
         }
     }
 
@@ -141,19 +145,20 @@ class AuthController extends Controller
 
             $id = $user->id;
             $type = $user->user_type;
-            $uu = null;
             if ($type == 1) {
-                $uu = User::find($id)->volunteer;
+                $u2 = User::find($id)->volunteer;
                 // Return go to volunteer page
             } else if ($type == 2) {
-                $uu = User::find($id)->elder;
+                $u2 = User::find($id)->elder;
                 // Return go to elder page
             } else {
                 // Return go to admin page
+                $u2 = [];
             }
 
             $response = [
                 "user" => $user,
+                "user2" => $u2,
                 "token" => $token,
             ];
 

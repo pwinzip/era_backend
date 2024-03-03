@@ -11,6 +11,7 @@ class PersonalAssessment extends Model
 
     protected $fillable = [
         'ass_id',
+        'gender',
         'age',
         'weight',
         'height',
@@ -23,6 +24,12 @@ class PersonalAssessment extends Model
         'year_working',
         'period_working',
     ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
 
     protected $casts = ['career' => 'array'];
 }

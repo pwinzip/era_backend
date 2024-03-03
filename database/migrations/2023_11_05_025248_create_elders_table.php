@@ -12,14 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('elders', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->primary();
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->id();
+            $table->string('prefix');
+            $table->string('name');
+            $table->string('code_name');
             $table->string('house_no');
             $table->tinyInteger('moo');
             $table->string('tambon');
             $table->string('amphoe');
-            $table->unsignedBigInteger('volunteer_id');
-            $table->foreign('volunteer_id')->references('user_id')->on('volunteers');
+            // $table->unsignedBigInteger('volunteer_id');
+            // $table->foreign('volunteer_id')->references('user_id')->on('volunteers');
             $table->timestamps();
         });
     }

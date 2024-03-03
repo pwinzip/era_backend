@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Elder;
 use Carbon\Carbon;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,8 +15,9 @@ class ElderController extends Controller
      */
     public function allelderlist(Request $request)
     {
-        if ($request->user->tokenCan("0") || $request->user->tokenCan("1")) {
-            $elders = Elder::all();
+        if ($request->user()->tokenCan("0") || $request->user()->tokenCan("1")) {
+            $elders = Elder::orderBy('elders.id')
+                ->get();
             return response([
                 "data" => $elders,
             ], 200);
@@ -27,21 +29,48 @@ class ElderController extends Controller
     }
 
     /**
-     * Display All Elder by specific Address(Tumbon, Moo)
+     * Display The Elder by specific id
      */
-    public function showelderbyaddress(Request $request)
+
+    public function showelderinformation(Request $request, $eldid)
     {
-        if ($request->user->tokenCan("0") || $request->user->tokenCan("1")) {
-            $fields = $request->validate([
-                "moo" => 'required|interger',
-                "tumbon" => 'required|string',
-            ]);
-            $elders = Elder::where("tambon", $fields["tumbon"])
-                ->where("moo", "=", $fields["moo"])
+        if ($request->user()->tokenCan("0") || $request->user()->tokenCan("1")) {
+            // $elder = DB::table('elders')
+            //     ->join('users', 'users.id', '=', 'elders.user_id')
+            //     ->where('elders.user_id', '=', $eldid)
+            //     ->get();
+            $elder = Elder::where('elders.id', '=', $eldid)
+                ->leftJoin('assessments', 'assessments.elder_id', 'elders.id')
+                ->where(function ($query) {
+                    $query->WhereIn('elders.id', function ($subquery) {
+                        $year = date('Y', strtotime(Carbon::now())) + 543;
+                        $month = intval(date('m', strtotime(Carbon::now())));
+                        $subquery->select('elders.id')
+                            ->from('elders')
+                            ->join('assessments', 'assessments.elder_id', '=', 'elders.id')
+                            ->where('assessments.year', '=', $year)
+                            ->where('assessments.month', '=', $month)
+                            ->where('assessments.status', '=', 0);
+                    })
+                        ->orWhereNotIn('elders.id', function ($subquery) {
+                            $year = date('Y', strtotime(Carbon::now())) + 543;
+                            // $month = 1;
+                            $month = intval(date('m', strtotime(Carbon::now())));
+                            $subquery->select('elders.id')
+                                ->from('elders')
+                                ->join('assessments', 'assessments.elder_id', '=', 'elders.id')
+                                ->where('assessments.year', '=', $year)
+                                ->where('assessments.month', '=', $month);
+                        });
+                })
+                ->select(
+                    'elders.*',
+                    'assessments.*'
+                )
                 ->get();
             return response([
-                "message" => $elders,
-            ], 200);
+                "data" => $elder,
+            ]);
         } else {
             return response([
                 "message" => "Permission Denied.",
@@ -61,24 +90,60 @@ class ElderController extends Controller
         //     ->where('volunteer_id', '=', $fields['volunteer'])
         //     ->select('elders.*', 'u1.prefix', 'u1.name as n1', 'u2.name as n2')
         //     ->get();
-        $year = date('Y', strtotime(Carbon::now())) + 543;
-        $month = intval(date('m', strtotime(Carbon::now())));
 
-        $elders = DB::table('assessments')
-            ->join('users', 'users.id', '=', 'assessments.elder_id')
-            ->join('elders', 'elders.user_id', 'assessments.elder_id')
-            ->where('assessments.volunteer_id', '=', $volid)
-            ->where('assessments.year', '=', $year)
-            ->where('assessments.month', '=', $month)
-            ->select('assessments.elder_id', 'users.prefix', 'users.name', 'elders.moo', 'elders.tambon', 'elders.amphoe', 'assessments.month', 'assessments.year', 'assessments.status')
-            ->orderBy('status')
-            ->orderBy('assessments.elder_id')
+        // $year = date('Y', strtotime(Carbon::now())) + 543;
+        // $month = 1;
+        // // $month = intval(date('m', strtotime(Carbon::now())));
+
+
+        $elders_incomplete = Elder::where('elders.volunteer_id', '=', $volid)
+            ->join('users', 'users.id', '=', 'elders.user_id')
+            ->where(function ($query) {
+                $query->WhereIn('elders.user_id', function ($subquery) {
+                    $year = date('Y', strtotime(Carbon::now())) + 543;
+                    $month = intval(date('m', strtotime(Carbon::now())));
+                    $subquery->select('elders.user_id')
+                        ->from('elders')
+                        ->join('assessments', 'assessments.elder_id', '=', 'elders.user_id')
+                        ->where('assessments.year', '=', $year)
+                        ->where('assessments.month', '=', $month)
+                        ->where('assessments.status', '=', 0);
+                })
+                    ->orWhereNotIn('elders.user_id', function ($subquery) {
+                        $year = date('Y', strtotime(Carbon::now())) + 543;
+                        $month = intval(date('m', strtotime(Carbon::now())));
+                        $subquery->select('elders.user_id')
+                            ->from('elders')
+                            ->join('assessments', 'assessments.elder_id', '=', 'elders.user_id')
+                            ->where('assessments.year', '=', $year)
+                            ->where('assessments.month', '=', $month);
+                    });
+            })
+            ->orderBy('elders.user_id')
+            ->get();
+
+        $elders_complete = Elder::where('elders.volunteer_id', '=', $volid)
+            ->join('users', 'users.id', '=', 'elders.user_id')
+            ->where(function ($query) {
+                $query->WhereIn('elders.user_id', function ($subquery) {
+                    $year = date('Y', strtotime(Carbon::now())) + 543;
+                    $month = intval(date('m', strtotime(Carbon::now())));
+                    $subquery->select('elders.user_id')
+                        ->from('elders')
+                        ->join('assessments', 'assessments.elder_id', '=', 'elders.user_id')
+                        ->where('assessments.year', '=', $year)
+                        ->where('assessments.month', '=', $month)
+                        ->where('assessments.status', '=', 1);
+                });
+            })
+            ->orderBy('elders.user_id')
             ->get();
 
         return response([
-            "data" => $elders,
-            'year' => $year,
-            'month' => $month,
+            "data" => [
+                'incomplete' => $elders_incomplete,
+                'complete' => $elders_complete
+            ],
         ], 200);
         // } else {
         //     return response([
@@ -88,57 +153,135 @@ class ElderController extends Controller
     }
 
     /**
+     * Display All Elder by specific Address(Tumbon, Moo)
+     */
+    public function showelderbyaddress(Request $request)
+    {
+        if ($request->user()->tokenCan("0") || $request->user()->tokenCan("1")) {
+            $fields = $request->validate([
+                "moo" => 'required|integer',
+                "tambon" => 'required|string',
+                "amphoe" => 'required|string',
+            ]);
+            $elders_incomplete = Elder::where('elders.moo', '=', $fields['moo'])
+                ->where('elders.tambon', '=', $fields['tambon'])
+                ->where('elders.amphoe', '=', $fields['amphoe'])
+                ->where(function ($query) {
+                    $query->WhereIn('elders.id', function ($subquery) {
+                        $year = date('Y', strtotime(Carbon::now())) + 543;
+                        $month = intval(date('m', strtotime(Carbon::now())));
+                        $subquery->select('elders.id')
+                            ->from('elders')
+                            ->join('assessments', 'assessments.elder_id', '=', 'elders.id')
+                            ->where('assessments.year', '=', $year)
+                            ->where('assessments.month', '=', $month)
+                            ->where('assessments.status', '=', 0);
+                    })
+                        ->orWhereNotIn('elders.id', function ($subquery) {
+                            $year = date('Y', strtotime(Carbon::now())) + 543;
+                            $month = intval(date('m', strtotime(Carbon::now())));
+                            $subquery->select('elders.id')
+                                ->from('elders')
+                                ->join('assessments', 'assessments.elder_id', '=', 'elders.id')
+                                ->where('assessments.year', '=', $year)
+                                ->where('assessments.month', '=', $month);
+                        });
+                })
+                ->orderBy('elders.id')
+                ->get();
+
+            $elders_complete = Elder::where('elders.moo', '=', $fields['moo'])
+                ->where('elders.tambon', '=', $fields['tambon'])
+                ->where('elders.amphoe', '=', $fields['amphoe'])
+                ->where(function ($query) {
+                    $query->WhereIn('elders.id', function ($subquery) {
+                        $year = date('Y', strtotime(Carbon::now())) + 543;
+                        $month = intval(date('m', strtotime(Carbon::now())));
+                        $subquery->select('elders.id')
+                            ->from('elders')
+                            ->join('assessments', 'assessments.elder_id', '=', 'elders.id')
+                            ->where('assessments.year', '=', $year)
+                            ->where('assessments.month', '=', $month)
+                            ->where('assessments.status', '=', 1);
+                    });
+                })
+                ->orderBy('elders.id')
+                ->get();
+
+            $response = [
+                'incomplete' => $elders_incomplete,
+                'complete' => $elders_complete
+            ];
+            return response([
+                "data" => $response
+            ], 200);
+        } else {
+            return response([
+                "message" => "Permission Denied.",
+            ], 403);
+        }
+    }
+
+    public function showelders(Request $request)
+    {
+        if ($request->user()->tokenCan("0") || $request->user()->tokenCan("1")) {
+            $elders_incomplete = Elder::where(function ($query) {
+                $query->WhereIn('elders.id', function ($subquery) {
+                    $year = date('Y', strtotime(Carbon::now())) + 543;
+                    $month = intval(date('m', strtotime(Carbon::now())));
+                    $subquery->select('elders.id')
+                        ->from('elders')
+                        ->join('assessments', 'assessments.elder_id', '=', 'elders.id')
+                        ->where('assessments.year', '=', $year)
+                        ->where('assessments.month', '=', $month)
+                        ->where('assessments.status', '=', 0);
+                })
+                    ->orWhereNotIn('elders.id', function ($subquery) {
+                        $year = date('Y', strtotime(Carbon::now())) + 543;
+                        $month = intval(date('m', strtotime(Carbon::now())));
+                        $subquery->select('elders.id')
+                            ->from('elders')
+                            ->join('assessments', 'assessments.elder_id', '=', 'elders.id')
+                            ->where('assessments.year', '=', $year)
+                            ->where('assessments.month', '=', $month);
+                    });
+            })
+                ->orderBy('elders.id')
+                ->get();
+
+            $elders_complete = Elder::where(function ($query) {
+                $query->WhereIn('elders.id', function ($subquery) {
+                    $year = date('Y', strtotime(Carbon::now())) + 543;
+                    $month = intval(date('m', strtotime(Carbon::now())));
+                    $subquery->select('elders.id')
+                        ->from('elders')
+                        ->join('assessments', 'assessments.elder_id', '=', 'elders.id')
+                        ->where('assessments.year', '=', $year)
+                        ->where('assessments.month', '=', $month)
+                        ->where('assessments.status', '=', 1);
+                });
+            })
+                ->orderBy('elders.id')
+                ->get();
+
+            $response = [
+                'incomplete' => $elders_incomplete,
+                'complete' => $elders_complete
+            ];
+            return response([
+                "data" => $response
+            ], 200);
+        } else {
+            return response([
+                "message" => "Permission Denied.",
+            ], 403);
+        }
+    }
+
+    /**
      * Update Elder Personal Info for Admin, Volunteer
      */
     public function updateelder(Request $request, $id)
     {
     }
-
-    /**
-     * Toggle Permission of Elder Status for Admin
-     */
-    public function toggleelder(Request $request, $id)
-    {
-    }
-
-
-    // /**
-    //  * Display a listing of the resource.
-    //  */
-    // public function index()
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Store a newly created resource in storage.
-    //  */
-    // public function store(Request $request)
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Display the specified resource.
-    //  */
-    // public function show(Elder $elder)
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Update the specified resource in storage.
-    //  */
-    // public function update(Request $request, Elder $elder)
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Remove the specified resource from storage.
-    //  */
-    // public function destroy(Elder $elder)
-    // {
-    //     //
-    // }
 }

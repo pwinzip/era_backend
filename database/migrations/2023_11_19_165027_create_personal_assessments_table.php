@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('personal_assessments', function (Blueprint $table) {
             $table->unsignedBigInteger('ass_id')->primary();
             $table->foreign('ass_id')->references('ass_id')->on('assessments');
+            $table->tinyInteger('gender');
             $table->tinyInteger('age');
             $table->double('weight');
             $table->double('height');

@@ -10,15 +10,17 @@ class Elder extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'address',
+        'prefix',
+        'name',
+        'code_name',
+        'house_no',
         'moo',
         'tambon',
         'amphoe',
-        'volunteer_id',
     ];
 
     protected $hidden = [
+        'password',
         'remember_token',
     ];
 

@@ -18,6 +18,11 @@ class RiskAssessment extends Model
         'manage',
         'note',
     ];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
 
     protected $casts = ['manage' => 'array'];
 }

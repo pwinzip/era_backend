@@ -14,7 +14,7 @@ class Assessment extends Model
     protected $fillable = [
         'ass_id',
         'elder_id',
-        'volunteer_id',
+        'assessor_id',
         'month',
         'year',
         'ass_personal',
@@ -27,5 +27,10 @@ class Assessment extends Model
         'ass_part7',
         'ass_part8',
         'status',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 }

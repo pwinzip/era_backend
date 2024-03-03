@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Elder;
 use App\Models\Volunteer;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class VolunteerController extends Controller
 {
@@ -13,8 +16,8 @@ class VolunteerController extends Controller
      */
     public function allvolunteerlist(Request $request)
     {
-        if ($request->user->tokenCan("0") || $request->user->tokenCan("1")) {
-            $volunteers = Volunteer::all();
+        if ($request->user()->tokenCan("0") || $request->user()->tokenCan("1")) {
+            $volunteers = Volunteer::join('users', 'users.id', '=', 'volunteers.user_id')->get();
             return response([
                 "data" => $volunteers,
             ], 200);
@@ -30,7 +33,7 @@ class VolunteerController extends Controller
      */
     public function showvolunteerlistbyaddress(Request $request)
     {
-        if ($request->user->tokenCan("0") || $request->user->tokenCan("1")) {
+        if ($request->user()->tokenCan("0") || $request->user()->tokenCan("1")) {
             $fields = $request->validate([
                 "moo" => 'required|integer',
                 "tumbon" => 'required|string',
@@ -51,13 +54,6 @@ class VolunteerController extends Controller
      * Update Volunteer Personal Info for Admin, Volunteer
      */
     public function updatevolunteer(Request $request, $id)
-    {
-    }
-
-    /**
-     * Toggle Permission of Volunteer Status for Admin
-     */
-    public function togglevolunteer(Request $request, $id)
     {
     }
 }
